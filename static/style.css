@@ -1,0 +1,63 @@
+body
+{
+    background-color: yellow;
+    font-family: arial black;
+}
+
+h1
+{
+    position: absolute;
+    font-size: 100;
+    text-shadow:
+    -5px -5px 0 white,
+    5px -5px 0 white,
+    -5px 5px 0 white,
+    5px 5px 0 white;
+    right: 100px;
+    z-index: 1000;
+}
+
+.pizza
+{
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+}
+
+.bieber
+{
+    position: absolute;
+    top: 205px;
+    right: 315px;
+    z-index: 200;
+}
+
+.cat
+{
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    z-index: 2;
+}
+
+.dolphin
+{
+    position: absolute;
+    top: 0px;
+    z-index: 1;
+}
+
+.palm
+{
+    position: absolute;
+    top: 110px;
+    right: 50px;
+    float: right;
+}
+
+.translate
+{
+    position: absolute;
+    top: 45px;
+    right: 200px;
+}
