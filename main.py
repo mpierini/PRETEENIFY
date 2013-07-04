@@ -20,9 +20,9 @@ def translate():
     return '''<link rel=stylesheet type=text/css href="static/style.css">
 	      <body>
     	        <h1 align = "center">
-      		  PRETEENIFY
+      		  <a href="/">PRETEENIFY</a>
     		</h1>
-    		<div class="translate">
+    		<div class="words">
 		'''+ new_string +'''</div>
     		<div class="dolphin" align="top">
       		  <img src="static/dolphin.gif">
