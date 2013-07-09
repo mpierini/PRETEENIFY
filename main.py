@@ -6,17 +6,10 @@ from bottle import route, run, template, get, post, request, static_file, error
 def serve_index():
     return static_file('index.html', root='static/')
 
-#@route('/translated')
-#def serve_translation():
-#    return static_file('translated.html', root='static/')
-
 @post('/translated')
 def translate():
     word_string = request.forms.get('word_string')
     new_string = weirdCaps(word_string)
-    #output = template('translation', word_string=new_string) #trying tpl format
-    #return output
-    #return static_file('translated.html', root='static/'), new_string
     return '''<link rel=stylesheet type=text/css href="static/style.css">
 	      <body>
     	        <h1 align = "center">
@@ -55,8 +48,16 @@ def weirdCaps(word_string):
     return ' '.join(words)
 
 @route('/static/<filename>')
-def serve_files(filename='style.css'):
-   return static_file(filename, root='static/')
+def serve_style(filename='style.css'):
+    return static_file(filename, root='static/')
+
+@get('/favicon.ico')
+#def get_animated():
+#    return '/static/favicon.ico'
+
+def serve_favicon():
+    return static_file('favicon.ico', root='static/')
+    #only works for static icon
 
 @error(404)
 def error404(error):
