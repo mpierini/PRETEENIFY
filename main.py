@@ -63,4 +63,5 @@ def serve_favicon():
 def error404(error):
     return 'YOU BROKE THE WEBSITE BRO'
 
-run(host='localhost', port=8080, debug=True)
+#run(host='localhost', port=8080, debug=True)
+#potentially needed to comment out this port #
