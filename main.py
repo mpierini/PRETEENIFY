@@ -1,22 +1,21 @@
 from bottle import route, run, template, get, post, request, static_file, error
 
-#okay now i want to make the translation area better for longer ones
 
 @route('/')
 def serve_index():
     return static_file('index.html', root='static/')
 
 @post('/translated')
-def translate():
+def serve_translation():
     word_string = request.forms.get('word_string')
-    new_string = weirdCaps(word_string)
+    new_string = translate(word_string)
     return '''<link rel=stylesheet type=text/css href="static/style.css">
 	      <body>
     	        <h1 align = "center">
       		  <a href="/">PRETEENIFY</a>
     		</h1>
     		<div class="words">
-		'''+ new_string +'''</div>
+		((~* '''+ new_string +''' *~))</div>
     		<div class="dolphin" align="top">
       		  <img src="static/dolphin.gif">
     		</div>
@@ -34,11 +33,33 @@ def translate():
     		</div>
   	      </body>'''
     
-def weirdCaps(word_string):
+
+def translate(word_string):
+
+    vocab_dict = {
+        'to' : '2',
+	'ate' : '8',
+	'you' : 'u',
+	'thanks' : 'thx',
+	'please' : 'plz',
+	'love' : 'luv',
+	'haha' : 'lol',
+	'oh my god' : 'omg',
+	'night' : 'nite',
+	'girl' : 'gurl',
+	'and' : '&',
+    } 
+
+    for key in vocab_dict:
+        if key in word_string:
+	    word_string = word_string.replace(key, vocab_dict[key])
+
     words = word_string.split(" ")
     count = 0
     index = 0
+
     for each in words:
+        each = each.lower()
         for letter in each:
 	    count+=1
 	    if count % 2 == 0:
@@ -47,21 +68,19 @@ def weirdCaps(word_string):
 	index+=1
     return ' '.join(words)
 
+
 @route('/static/<filename>')
 def serve_style(filename='style.css'):
     return static_file(filename, root='static/')
 
 @get('/favicon.ico')
-#def get_animated():
-#    return '/static/favicon.ico'
-
 def serve_favicon():
     return static_file('favicon.ico', root='static/')
-    #only works for static icon
+    #only works for static icon in chrome?
 
 @error(404)
 def error404(error):
     return 'YOU BROKE THE WEBSITE BRO'
 
-#run(host='localhost', port=8080, debug=True)
-#potentially needed to comment out this port #
+run(host='localhost', port=8080, debug=True)
+#potentially needed to comment out this port # when doing heroku shit
