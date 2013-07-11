@@ -1,3 +1,4 @@
+import os
 from bottle import route, run, template, get, post, request, static_file, error
 
 
@@ -82,5 +83,8 @@ def serve_favicon():
 def error404(error):
     return 'YOU BROKE THE WEBSITE BRO'
 
-run(host='localhost', port=8080, debug=True)
-#potentially needed to comment out this port # when doing heroku shit
+run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+#heroku setting
+
+#run(host='localhost', port=8080, debug=True)
+#local dev setting
