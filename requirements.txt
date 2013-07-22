@@ -1,1 +1,4 @@
 bottle==0.11.6
+distribute==0.6.49
+psycopg2==2.5.1
+#pymongo==2.5.2
