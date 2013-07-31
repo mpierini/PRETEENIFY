@@ -1,14 +1,15 @@
 import os, psycopg2, urlparse
-
-#LOCAL DB
-#import os, pymongo
-#from pymongo import Connection
+from local_settings import DATABASE_KEY
 
 from bottle import route, run, template, get, post, request, static_file, error
 
-def connect():
+def connecting():
     urlparse.uses_netloc.append("postgres")
-    url = urlparse.urlparse(os.environ["DATABASE_URL"])
+    DATABASE_URL = DATABASE_KEY
+    try:
+        url = urlparse.urlparse(os.environ["DATABASE_URL"])
+    except KeyError:
+        url = urlparse.urlparse(DATABASE_URL)
     conn = psycopg2.connect(
         database = url.path[1:],
 	user = url.username,
@@ -16,19 +17,15 @@ def connect():
 	host = url.hostname,
 	port = url.port
     )
+    return conn
 
 def save_string(str):
-    connection = connect()
+    connection = connecting()
     cur = connection.cursor()
-    query = "INSERT INTO preteenify VALUES (" + str + ");"
-    cur.execute(query)'''
-
-def save_string(str):
-    connection = Connection()
-    db = connection.preteenify
-    collection = db.strings
-    entry = {'text' : str}
-    collection.insert(entry)
+    cur.execute("""INSERT INTO preteenify VALUES (%(trans)s)""", {'trans' : str})
+    connection.commit()
+    cur.close()
+    connection.close()
 
 @route('/')
 def serve_index():
@@ -114,6 +111,11 @@ def serve_favicon():
 @error(404)
 def error404(error):
     return 'YOU BROKE THE WEBSITE BRO'
+
+@error(500)
+def error500(error):
+    word_string = request.forms.get('word_string')
+    return 'SOMETHING TERRIBLE HAPPENED: HERE\'S YOUR TRANSLATION ' + translate(word_string)
 
 run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 #heroku setting
