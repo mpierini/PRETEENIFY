@@ -31,6 +31,9 @@ def serve_translation():
     new_string = translate(word_string)
     save_string(new_string)
     return '''<link rel=stylesheet type=text/css href="static/style.css">
+              <title>
+                PRETEENIFY
+              </title>
 	      <body>
     	        <h1 align = "center">
       		  <a href="/">PRETEENIFY</a>
@@ -105,6 +108,9 @@ def serve_favicon():
 @error(404)
 def error404(error):
     return '''<link rel=stylesheet type=text/css href="static/style.css">
+              <title>
+                PRETEENIFY
+              </title>
               <body>
                 <h1 align = "center">
                   <a href="/">PRETEENIFY</a>
@@ -121,6 +127,9 @@ def error404(error):
 def error500(error):
     word_string = request.forms.get('word_string')
     return '''<link rel=stylesheet type=text/css href="static/style.css">
+              <title>
+                PRETEENIFY
+              </title>
               <body>
                 <h1 align = "center">
                   <a href="/">PRETEENIFY</a>
