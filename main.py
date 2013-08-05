@@ -104,12 +104,36 @@ def serve_favicon():
 
 @error(404)
 def error404(error):
-    return 'YOU BROKE THE WEBSITE BRO'
+    return '''<link rel=stylesheet type=text/css href="static/style.css">
+              <body>
+                <h1 align = "center">
+                  <a href="/">PRETEENIFY</a>
+                </h1>
+                <div class="sad">
+                  <img src="static/sad_dawson.gif">
+                </div>
+                <div class="msg">
+                  YOU BROKE THE WEBSITE BRO
+                </div>
+              </body>'''
 
 @error(500)
 def error500(error):
     word_string = request.forms.get('word_string')
-    return 'SOMETHING TERRIBLE HAPPENED: HERE\'S YOUR TRANSLATION ' + translate(word_string)
+    return '''<link rel=stylesheet type=text/css href="static/style.css">
+              <body>
+                <h1 align = "center">
+                  <a href="/">PRETEENIFY</a>
+                </h1>
+                <div class="trans">
+                  SOMETHING TERRIBLE HAPPENED:
+                  <br>HERE\'S YOUR TRANSLATION 
+                  <p>''' + translate(word_string) + '''
+		</div>
+                <div class="lindsay">
+                  <img src="static/lindsay_palm.gif">
+                </div>
+              </body> '''
 
 run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 #heroku setting

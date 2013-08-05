@@ -36,7 +36,6 @@ a:visited
 a:hover
 {
     color: #6BFFB7;
-    /*background: #000000;*/
     height: 10px;
 }
 
@@ -70,6 +69,20 @@ a:hover
     z-index: 1;
 }
 
+.lindsay
+{
+    position: absolute;
+    top: 110px;
+    right: 260px;
+}
+
+.msg
+{
+    position: absolute;
+    top: 350px;
+    right: 220px;
+}
+
 .palm
 {
     position: absolute;
@@ -78,6 +91,12 @@ a:hover
     float: right;
 }
 
+.sad
+{
+    position: absolute;
+    top: 110px;
+    right: 220px;
+}
 .translate
 {
     position: absolute;
@@ -85,6 +104,13 @@ a:hover
     right: 200px;
     width: 430px;
     height: 50px;
+}
+
+.trans
+{
+    position: absolute;
+    top: 410px;
+    right: 350px;
 }
 
 .words
