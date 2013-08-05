@@ -1,15 +1,9 @@
 import os, psycopg2, urlparse
-from local_settings import DATABASE_KEY
 
 from bottle import route, run, template, get, post, request, static_file, error
 
 def connecting():
-    urlparse.uses_netloc.append("postgres")
-    DATABASE_URL = DATABASE_KEY
-    try:
-        url = urlparse.urlparse(os.environ["DATABASE_URL"])
-    except KeyError:
-        url = urlparse.urlparse(DATABASE_URL)
+    url = urlparse.urlparse(os.environ["DATABASE_URL"])
     conn = psycopg2.connect(
         database = url.path[1:],
 	user = url.username,
