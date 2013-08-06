@@ -18,6 +18,7 @@ h1
     5px -5px 0 white,
     -5px 5px 0 white,
     5px 5px 0 white;
+    /*top: 8px;*/
     right: 100px;
     z-index: 1000;
 }

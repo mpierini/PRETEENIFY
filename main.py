@@ -41,15 +41,17 @@ def serve_translation():
     word_string = request.forms.get('word_string')
     new_string = translate(word_string)
     save_string(new_string)
-    tweet(new_string)
+    #tweet(new_string)
     return '''<link rel=stylesheet type=text/css href="static/style.css">
               <title>
                 PRETEENIFY
               </title>
 	      <body>
+                <div class="header">
     	        <h1 align = "center">
       		  <a href="/">PRETEENIFY</a>
     		</h1>
+                </div>
     		<div class="words">
 		'''+ new_string +'''</div>
     		<div class="dolphin" align="top">
@@ -74,6 +76,7 @@ def translate(word_string):
 
     vocab_dict = {
         'to' : '2',
+        'too' : '2',
 	'ate' : '8',
 	'you' : 'u',
 	'thanks' : 'thx',
@@ -88,6 +91,7 @@ def translate(word_string):
 	'forever' : '4ever',
 	'what' : 'wut',
         'house' : 'haus',
+        'thing' : 'thang',
     } 
 
     for key in vocab_dict:
