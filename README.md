@@ -1,3 +1,3 @@
 PRETEENIFY
 ==========
-Partially done project to translate your text into a format that pre-teens will understand better.
+Translate your text into a format that pre-teens will understand better. @PRETEENIFY tweets the translations into the twittersphere.
