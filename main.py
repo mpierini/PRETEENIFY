@@ -41,7 +41,7 @@ def serve_translation():
     word_string = request.forms.get('word_string')
     new_string = translate(word_string)
     save_string(new_string)
-    #tweet(new_string)
+    tweet(new_string)
     return '''<link rel=stylesheet type=text/css href="static/style.css">
               <title>
                 PRETEENIFY
