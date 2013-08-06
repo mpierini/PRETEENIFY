@@ -1,3 +1,7 @@
+TweetPony==1.2.8
+argparse==1.2.1
 bottle==0.11.6
 distribute==0.6.49
 psycopg2==2.5.1
+requests==1.2.0
+wsgiref==0.1.2
