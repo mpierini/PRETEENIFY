@@ -1,4 +1,4 @@
-import os, psycopg2, urlparse
+import os, psycopg2, urlparse, tweetpony
 
 from bottle import route, run, template, get, post, request, static_file, error
 
@@ -21,6 +21,17 @@ def save_string(str):
     cur.close()
     connection.close()
 
+def tweet(str):
+    CONSUMER_KEY = os.environ["CONSUMER_KEY"]
+    CONSUMER_SECRET = os.environ["CONSUMER_SECRET"]
+    ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
+    ACCESS_TOKEN_SECRET = os.environ["ACCESS_TOKEN_SECRET"]
+    api = tweetpony.API(
+          consumer_key=CONSUMER_KEY, consumer_secret=CONSUMER_SECRET,
+          access_token=ACCESS_TOKEN, access_token_secret=ACCESS_TOKEN_SECRET
+          )
+    api.update_status(status = str)
+
 @route('/')
 def serve_index():
     return static_file('index.html', root='static/')
@@ -30,6 +41,7 @@ def serve_translation():
     word_string = request.forms.get('word_string')
     new_string = translate(word_string)
     save_string(new_string)
+    tweet(new_string)
     return '''<link rel=stylesheet type=text/css href="static/style.css">
               <title>
                 PRETEENIFY
@@ -75,6 +87,7 @@ def translate(word_string):
 	'because' : 'cuz',
 	'forever' : '4ever',
 	'what' : 'wut',
+        'house' : 'haus',
     } 
 
     for key in vocab_dict:
@@ -94,7 +107,6 @@ def translate(word_string):
         words[index] = each
 	index+=1
     return '((~* ' + ' '.join(words) + ' *~))'
-
 
 @route('/static/<filename>')
 def serve_style(filename='style.css'):
