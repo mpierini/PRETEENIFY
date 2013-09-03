@@ -1,6 +1,14 @@
-import os, psycopg2, urlparse, tweetpony
+import os, psycopg2, urlparse, tweetpony, hashlib, time, requests_oauthlib
+
+from requests_oauthlib import OAuth1Session
 
 from bottle import route, run, template, get, post, request, static_file, error
+
+#OKAY SERIOUSLY NEED TO LOOK INTO TEMPLATES OR SOMETHING
+#GOT WAAAAAY TOO MUCH HTML GOING ON IN HERE
+
+CONSUMER_KEY = os.environ["CONSUMER_KEY"]
+CONSUMER_SECRET = os.environ["CONSUMER_SECRET"]
 
 def connecting():
     url = urlparse.urlparse(os.environ["DATABASE_URL"])
@@ -21,27 +29,179 @@ def save_string(str):
     cur.close()
     connection.close()
 
-def tweet(str):
-    CONSUMER_KEY = os.environ["CONSUMER_KEY"]
-    CONSUMER_SECRET = os.environ["CONSUMER_SECRET"]
+def preteenify_tweet(str):
+    # CONSUMER_KEY = os.environ["CONSUMER_KEY"]
+    # CONSUMER_SECRET = os.environ["CONSUMER_SECRET"]
     ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
     ACCESS_TOKEN_SECRET = os.environ["ACCESS_TOKEN_SECRET"]
     api = tweetpony.API(
-          consumer_key=CONSUMER_KEY, consumer_secret=CONSUMER_SECRET,
-          access_token=ACCESS_TOKEN, access_token_secret=ACCESS_TOKEN_SECRET
-          )
+        consumer_key=CONSUMER_KEY, 
+        consumer_secret=CONSUMER_SECRET,
+        access_token=ACCESS_TOKEN,
+        access_token_secret=ACCESS_TOKEN_SECRET
+    )
     api.update_status(status = str)
+
+def auth_url(CONSUMER_KEY, CONSUMER_SECRET):
+    api = tweetpony.API(CONSUMER_KEY, CONSUMER_SECRET)
+    url = api.get_auth_url()
+    return url # put this url in the button link
+
+def user_auth():
+    request_token_url = 'https://api.twitter.com/oauth/request_token'
+    authentication_url = 'https://api.twitter.com/oauth/authenticate'
+    access_token_url = 'https://api.twitter.com/oauth/access_token'
+    oauth_session = OAuth1Session(
+        client_key=CONSUMER_KEY,
+        client_secret=CONSUMER_SECRET,
+        callback_uri='http://0.0.0.0:5000/get-url'
+        #update this before heroku push !
+    )
+    #first step
+    oauth_session.fetch_request_token(request_token_url)
+    #second step
+    oauth_session.authorization_url(authentication_url)
+    #third step
+    resp = request.forms.get('redirect_response')
+    oauth_session.parse_authorization_response(resp)
+    oauth_session.fetch_access_token(access_token_url)
+    return oauth_session
+
+def user_tweet(oauth_session, new_string):
+    status_url = 'https://api.twitter.com/1.1/statuses/update.json'
+    new_status = {'status':  new_string}
+    oauth_session.post(status_url, data=new_status)
 
 @route('/')
 def serve_index():
-    return static_file('index.html', root='static/')
+    #return static_file('index.html', root='static/')
+    return '''<link rel=stylesheet type=text/css href="static/style.css">
+              <title>
+                PRETEENIFY
+              </title>
+              <body>
+                <div class="header">
+                  <h1 align = "center">
+                    <a href="/">PRETEENIFY</a>
+                  </h1>
+                </div>
+                <div class="translate">
+                  <form method="POST" action="/translated" align="center">
+                    <input name="word_string" type="text" maxlength="130"/>
+                    <input type="submit" value="TRANSLATE"/>
+                  </form>
+                </div>
+                <div class="twitter-login">
+                  <a href ="''' + auth_url(CONSUMER_KEY, CONSUMER_SECRET) + '''">
+                    <img src="static/sign-in-with-twitter-gray.png">
+                  </a>
+                </div>
+                <div class="dolphin" align="top">
+                  <img src="static/dolphin.gif">
+                </div>
+                <div class="palm" align="top">
+                  <img src="static/palm.gif">
+                </div>
+                <div class="bieber" align="center">
+                  <img src="static/leftJB.gif">
+                </div>
+                <div class="pizza" align="left">
+                  <img src="static/adventurePIZZA.gif">
+                </div>
+                <div class="cat" align="right">
+                  <img src="static/spacecat.gif">
+                </div>
+              </body>'''
 
+@route('/get-url')
+def get_info():
+    return '''<link rel=stylesheet type=text/css href="static/style.css">
+              <title>
+                PRETEENIFY
+              </title>
+              <body>
+                <div class="header">
+                  <h1 align = "center">
+                    <a href="/">PRETEENIFY</a>
+                  </h1>
+                </div>
+                <!--<div class="translate">
+                  <form method="POST" action="/translated" align="center">
+                    <input name="word_string" type="text" maxlength="130"/>
+                    <input type="submit" value="TRANSLATE"/>
+                  </form>
+                </div>-->
+                <div class="twitter-code">
+                  <!--<form method="GET" action="/" align="center">-->
+                  <form method="POST" action="/translated" align="center">
+                    <input name="redirect_response" type="text" value="ENTER URL"/>
+                    <input name="word_string" type="text" value="ENTER STUFF TO BE TRANSLATED" maxlength="130"/>
+                    <input type="submit" value="TRANSLATE"/>
+                    <!--<input type="submit" value="ENTER URL"/>-->
+                  </form>
+                </div>
+                <div class="dolphin" align="top">
+                  <img src="static/dolphin.gif">
+                </div>
+                <div class="palm" align="top">
+                  <img src="static/palm.gif">
+                </div>
+                <div class="bieber" align="center">
+                  <img src="static/leftJB.gif">
+                </div>
+                <div class="pizza" align="left">
+                  <img src="static/adventurePIZZA.gif">
+                </div>
+                <div class="cat" align="right">
+                  <img src="static/spacecat.gif">
+                </div>
+              </body>'''
+
+@route('/get-pin')
+def get_info():
+    return '''<link rel=stylesheet type=text/css href="static/style.css">
+              <title>
+                PRETEENIFY
+              </title>
+              <body>
+                <div class="header">
+                  <h1 align = "center">
+                    <a href="/">PRETEENIFY</a>
+                  </h1>
+                </div>
+                <div class="twitter-code">
+                  <form method="GET" action="/" align="center">
+                    <input name="pin_code" type="text"/>
+                    <input type="submit" value="ENTER PIN"/>
+                  </form>
+                </div>
+                <div class="dolphin" align="top">
+                  <img src="static/dolphin.gif">
+                </div>
+                <div class="palm" align="top">
+                  <img src="static/palm.gif">
+                </div>
+                <div class="bieber" align="center">
+                  <img src="static/leftJB.gif">
+                </div>
+                <div class="pizza" align="left">
+                  <img src="static/adventurePIZZA.gif">
+                </div>
+                <div class="cat" align="right">
+                  <img src="static/spacecat.gif">
+                </div>
+              </body>'''
+
+#HELL YEAH USER TWEETS ARE GOOOOOO!
 @post('/translated')
 def serve_translation():
     word_string = request.forms.get('word_string')
     new_string = translate(word_string)
     save_string(new_string)
-    tweet(new_string)
+    #NEED TO SEPARATE CODE HERE (preteenify_tweet goes somewhere...)
+    oauth_session = user_auth()
+    user_tweet(oauth_session, new_string)
+    user_name = 'my_name'
     return '''<link rel=stylesheet type=text/css href="static/style.css">
               <title>
                 PRETEENIFY
@@ -60,8 +220,9 @@ def serve_translation():
     		<div class="palm" align="top">
       		  <img src="static/palm.gif">
     		</div>
+                <!-- OKAY OBVIOUSLY THIS DOESN'T WORK BUT YEAH -->
     		<div class="bieber" align="center">
-                  <a class="twitter-timeline" width="300" height="450" href="https://twitter.com/PRETEENIFY"  data-widget-id="364628094939717632">Tweets by @PRETEENIFY</a>
+                  <a class="twitter-timeline" width="300" height="450" href="https://twitter.com/''' + user_name + ''' "  data-widget-id="364628094939717632">Tweets by @''' + user_name + ''' </a>
                   <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
     		</div>
     		<div class="pizza" align="left">
@@ -71,13 +232,14 @@ def serve_translation():
                   <img src="static/spacecat.gif">
     		</div>
   	      </body>'''
-    
+#this is where the preteenify_tweet else clause used to be
 
 def translate(word_string):
 
     vocab_dict = {
         'to' : '2',
         'too' : '2',
+        'for' : '4',
 	'ate' : '8',
 	'you' : 'u',
 	'thanks' : 'thx',
