@@ -18,7 +18,6 @@ h1
     5px -5px 0 white,
     -5px 5px 0 white,
     5px 5px 0 white;
-    /*top: 8px;*/
     right: 100px;
     z-index: 1000;
 }
@@ -114,6 +113,26 @@ a:hover
     right: 350px;
 }
 
+.twitter-code
+{
+    position: absolute;
+    top: 10px;
+    right: 200px;
+    width: 430px;
+    height: 50px;
+
+}
+
+.twitter-login
+{
+    position: absolute;
+    top: 45px;
+    right: 0px;
+    width: 200px;
+    height: 50px;
+
+}
+
 .words
 {
     position: absolute;
@@ -121,6 +140,7 @@ a:hover
     right: 200px;
     width: 430px;
     height: 50px;
-    overflow-y: scroll;
+    /*testing with large translation*/
+    /*overflow-y: scroll;*/
     z-index: 2000;
 }
