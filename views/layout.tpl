@@ -1,17 +1,15 @@
 <html>
-  <head>
-    <link rel=stylesheet type=text/css href="static/style.css">
-    <title>
-      PRETEENIFY
-    </title>
-  </head>
+  <link rel=stylesheet type=text/css href="static/style.css">
+  <title>
+    PRETEENIFY
+  </title>
   <body>
-    <h1 align = "center">
-      <a href="/">PRETEENIFY</a>
-    </h1>
-    <div class="words">
-
+    <div class="header">
+      <h1 align = "center">
+        <a href="/">PRETEENIFY</a>
+      </h1>
     </div>
+    %include
     <div class="dolphin" align="top">
       <img src="static/dolphin.gif">
     </div>
@@ -29,4 +27,3 @@
     </div>
   </body>
 </html>
-
