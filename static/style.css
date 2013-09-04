@@ -97,6 +97,15 @@ a:hover
     top: 110px;
     right: 220px;
 }
+
+.timeline
+{
+    position: absolute;
+    top: 205px;
+    right: 315px;
+    z-index: 500;
+}
+
 .translate
 {
     position: absolute;
@@ -120,7 +129,6 @@ a:hover
     right: 200px;
     width: 430px;
     height: 50px;
-
 }
 
 .twitter-login
@@ -130,7 +138,6 @@ a:hover
     right: 0px;
     width: 200px;
     height: 50px;
-
 }
 
 .words
