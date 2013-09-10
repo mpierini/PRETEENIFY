@@ -1,8 +1,8 @@
-import os, psycopg2, urlparse, tweetpony, hashlib, time, requests_oauthlib
+import os, psycopg2, urlparse, tweetpony, hashlib, time, requests_oauthlib, pickle
 
 from requests_oauthlib import OAuth1Session
 
-from bottle import route, run, template, get, post, request, static_file, error
+from bottle import route, run, template, get, post, request, static_file, error, redirect
 
 #AHAHAHA HTML SITCH CONQUERED
 
@@ -43,8 +43,20 @@ def preteenify_tweet(str):
 
 def auth_url(CONSUMER_KEY, CONSUMER_SECRET):
     api = tweetpony.API(CONSUMER_KEY, CONSUMER_SECRET)
-    url = api.get_auth_url()
-    return url # put this url in the button link
+    AUTH_URL = api.get_auth_url()
+    return AUTH_URL # put this url in the button link
+
+#SAVING TOKENS OR WHATEVER GAWWD
+def save_secrets(filename, token):
+    f = open(filename, 'w')
+    pickle.dump(token, f)
+    f.close()
+
+def access_secrets(filename):
+    f = open(filename, 'r')
+    token = pickle.load(f)
+    f.close()
+    return token
 
 def user_auth():
     request_token_url = 'https://api.twitter.com/oauth/request_token'
@@ -57,14 +69,16 @@ def user_auth():
         #update this before heroku push !
     )
     #first step
-    oauth_session.fetch_request_token(request_token_url)
+    oauth_session.fetch_request_token(request_token_url) #save this??
     #second step
     oauth_session.authorization_url(authentication_url)
     #third step
     resp = request.forms.get('redirect_response')
     oauth_session.parse_authorization_response(resp)
-    oauth_session.fetch_access_token(access_token_url)
-    return oauth_session
+    token = oauth_session.fetch_access_token(access_token_url)
+    save_secrets('secret_token', token)
+    save_secrets('secret_session', oauth_session)
+    #return oauth_session
 
 def user_tweet(oauth_session, new_string):
     status_url = 'https://api.twitter.com/1.1/statuses/update.json'
@@ -78,20 +92,35 @@ def serve_index():
     
 @route('/get-url')
 def get_info():
+    f = open('secret_token', 'w')
+    f.close()
+    g = open('secret_session', 'w')
+    g.close()
     return template('url_form')
+
+#LOGOUTS WORK? LOGOUTS WERKEKEKEKE!
 
 #HELL YEAH USER TWEETS ARE GOOOOOO!
 @post('/translated')
 def serve_translation():
+    new_string = new_translation()
+    user_name = ''
+    if os.path.isfile('./secret_session'):
+        user_auth()
+        oauth_session = access_secrets('secret_session')
+        #user_tweet(oauth_session, new_string)
+        user_dict = access_secrets('secret_token')
+        user_name = user_dict['screen_name'] #need to figure out what to do here
+    else:
+        #preteenify_tweet(new_string)
+        user_name = 'PRETEENIFY' #okay so this widget is predefined
+    return template('translated', new_string=new_string, user_name=user_name)  
+
+def new_translation():
     word_string = request.forms.get('word_string')
     new_string = translate(word_string)
     save_string(new_string)
-    #NEED TO SEPARATE CODE HERE (preteenify_tweet goes somewhere...)
-    oauth_session = user_auth()
-    user_tweet(oauth_session, new_string)
-    user_name = 'my_name'
-    return template('translated', new_string=new_string, user_name=user_name)           
-#this is where the preteenify_tweet else clause used to be
+    return new_string
 
 def translate(word_string):
 
@@ -114,6 +143,9 @@ def translate(word_string):
 	'what' : 'wut',
         'house' : 'haus',
         'thing' : 'thang',
+        'more' : 'moar',
+        'though' : 'tho',
+        'school' : 'skool',
     } 
 
     for key in vocab_dict:
@@ -133,6 +165,14 @@ def translate(word_string):
         words[index] = each
 	index+=1
     return '((~* ' + ' '.join(words) + ' *~))'
+
+@route('/signed-out')
+def sign_out():
+    if os.path.isfile('./secret_session'):
+        os.remove('./secret_session') #destroy!
+    if os.path.isfile('./secret_token'):
+        os.remove('./secret_token') #code&destroy!
+    return serve_index() #this gets us back home 
 
 @route('/static/<filename>')
 def serve_style(filename='style.css'):
