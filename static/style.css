@@ -101,9 +101,9 @@ a:hover
 .timeline
 {
     position: absolute;
-    top: 205px;
-    right: 315px;
-    z-index: 500;
+    top: 204px;
+    right: 313px;
+    z-index: 5000;/*HAH take that bieber!*/
 }
 
 .translate
@@ -147,7 +147,5 @@ a:hover
     right: 200px;
     width: 430px;
     height: 50px;
-    /*testing with large translation*/
-    /*overflow-y: scroll;*/
     z-index: 2000;
 }
