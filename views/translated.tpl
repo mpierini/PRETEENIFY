@@ -1,6 +1,14 @@
     <div class="words">
       {{new_string}}
     </div>
+    %import os
+    %if os.path.isfile('./secret_session'):
+    <div class="twitter-login">
+      <form method="GET" action="/signed-out" align="center">
+        <input name="logged_out" type="submit" value="SIGN OUT!"/>
+      </form>
+    %end 
+    </div>
     <div class="timeline" align="center">
       <a class="twitter-timeline" width="300" height="450" href="https://twitter.com/"{{user_name}} data-widget-id="364628094939717632">Tweets by @{{user_name}}
       </a>
