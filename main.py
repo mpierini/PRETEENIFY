@@ -1,10 +1,8 @@
-import os, psycopg2, urlparse, tweetpony, hashlib, time, requests_oauthlib, pickle, simplejson #do i still need hashlib?
+import os, psycopg2, urlparse, tweetpony, requests_oauthlib, pickle 
 
 from requests_oauthlib import OAuth1Session
 
 from bottle import route, run, template, get, post, request, static_file, error, redirect
-
-#AHAHAHA HTML SITCH CONQUERED
 
 CONSUMER_KEY = os.environ["CONSUMER_KEY"]
 CONSUMER_SECRET = os.environ["CONSUMER_SECRET"]
@@ -29,8 +27,6 @@ def save_string(str):
     connection.close()
 
 def preteenify_tweet(str):
-    # CONSUMER_KEY = os.environ["CONSUMER_KEY"]
-    # CONSUMER_SECRET = os.environ["CONSUMER_SECRET"]
     ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
     ACCESS_TOKEN_SECRET = os.environ["ACCESS_TOKEN_SECRET"]
     api = tweetpony.API(
@@ -46,7 +42,7 @@ def auth_url(CONSUMER_KEY, CONSUMER_SECRET):
     AUTH_URL = api.get_auth_url()
     return AUTH_URL # put this url in the button link
 
-#SAVING TOKENS OR WHATEVER GAWWD
+#saving tokens - is secure ish?
 def save_secrets(filename, token):
     f = open(filename, 'w')
     pickle.dump(token, f)
@@ -65,11 +61,11 @@ def user_auth():
     oauth_session = OAuth1Session(
         client_key=CONSUMER_KEY,
         client_secret=CONSUMER_SECRET,
-        callback_uri='http://0.0.0.0:5000/get-url'
-        #update this before heroku push !
+        callback_uri='http://preteenify.herokuapp.com/get-url'
+        #callback_uri='http://0.0.0.0:5000/get-url'
     )
     #first step
-    oauth_session.fetch_request_token(request_token_url) #save this??
+    oauth_session.fetch_request_token(request_token_url)
     #second step
     oauth_session.authorization_url(authentication_url)
     #third step
@@ -90,7 +86,7 @@ def user_timeline(oauth_session, user_name):
     timeline_url += user_name
     timeline_url += '&count=10'
     tweets = oauth_session.get(timeline_url)
-    return tweets #this is a list !
+    return tweets #returns list thing
 
 @route('/')
 def serve_index():
@@ -105,9 +101,7 @@ def get_info():
     g.close()
     return template('url_form')
 
-#LOGOUTS WORK? LOGOUTS WERKEKEKEKE!
-
-#HELL YEAH USER TWEETS ARE GOOOOOO!
+#user tweets work
 @post('/translated')
 def serve_translation():
     new_string = new_translation()
@@ -118,12 +112,12 @@ def serve_translation():
         oauth_session = access_secrets('secret_session')
         user_tweet(oauth_session, new_string)
         user_dict = access_secrets('secret_token')
-        user_name = user_dict['screen_name'] #need to figure out what to do here
+        user_name = user_dict['screen_name']
         tweets = user_timeline(oauth_session, user_name)
         json_tweets = tweets.json()
     else:
         preteenify_tweet(new_string) #totally hates duplicate statuses
-        user_name = 'PRETEENIFY' #okay so this widget is predefined
+        user_name = 'PRETEENIFY' #mildly unnecessary
     return template('translated', new_string=new_string, user_name=user_name, tweets=json_tweets)  
 
 def new_translation():
@@ -177,13 +171,14 @@ def translate(word_string):
 	index+=1
     return '((~* ' + ' '.join(words) + ' *~))'
 
+#logging out works
 @route('/signed-out')
 def sign_out():
     if os.path.isfile('./secret_session'):
-        os.remove('./secret_session') #destroy!
+        os.remove('./secret_session')
     if os.path.isfile('./secret_token'):
-        os.remove('./secret_token') #code&destroy!
-    return serve_index() #this gets us back home 
+        os.remove('./secret_token')
+    return serve_index() #returns home page 
 
 @route('/static/<filename>')
 def serve_style(filename='style.css'):
