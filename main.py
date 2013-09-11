@@ -61,8 +61,8 @@ def user_auth():
     oauth_session = OAuth1Session(
         client_key=CONSUMER_KEY,
         client_secret=CONSUMER_SECRET,
-        #callback_uri='http://preteenify.herokuapp.com/get-url'
-        callback_uri='http://0.0.0.0:5000/get-url'
+        callback_uri='http://preteenify.herokuapp.com/get-url'
+        #callback_uri='http://0.0.0.0:5000/get-url'
     )
     #first step
     oauth_session.fetch_request_token(request_token_url)
