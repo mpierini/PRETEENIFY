@@ -61,8 +61,8 @@ def user_auth():
     oauth_session = OAuth1Session(
         client_key=CONSUMER_KEY,
         client_secret=CONSUMER_SECRET,
-        callback_uri='http://preteenify.herokuapp.com/get-url'
-        #callback_uri='http://0.0.0.0:5000/get-url'
+        #callback_uri='http://preteenify.herokuapp.com/get-url'
+        callback_uri='http://0.0.0.0:5000/get-url'
     )
     #first step
     oauth_session.fetch_request_token(request_token_url)
@@ -107,16 +107,17 @@ def serve_translation():
     new_string = new_translation()
     user_name = ''
     json_tweets = None
-    if os.path.isfile('./secret_session'):
+    if os.path.isfile('./secret_session') and os.path.getsize('./secret_session') == 0:
         user_auth()
+    if os.path.isfile('./secret_session') and os.path.getsize('./secret_session') > 0:
         oauth_session = access_secrets('secret_session')
-        user_tweet(oauth_session, new_string)
+        #user_tweet(oauth_session, new_string)
         user_dict = access_secrets('secret_token')
         user_name = user_dict['screen_name']
         tweets = user_timeline(oauth_session, user_name)
         json_tweets = tweets.json()
     else:
-        preteenify_tweet(new_string) #totally hates duplicate statuses
+        #preteenify_tweet(new_string) #totally hates duplicate statuses
         user_name = 'PRETEENIFY' #mildly unnecessary
     return template('translated', new_string=new_string, user_name=user_name, tweets=json_tweets)  
 
