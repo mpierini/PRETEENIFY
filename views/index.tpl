@@ -10,6 +10,12 @@
       <a href = {{url}}>
         <img src="static/sign-in-with-twitter-gray.png">
       </a>
+    %else
+    </div>
+    <div class="twitter-login">
+      <form method="GET" action="/signed-out" align="center">
+        <input name="logged_out" type="submit" value="SIGN OUT!"/>
+      </form>
     </div>
     %end
     %rebase layout 
