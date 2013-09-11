@@ -1,4 +1,4 @@
-import os, psycopg2, urlparse, tweetpony, hashlib, time, requests_oauthlib, pickle
+import os, psycopg2, urlparse, tweetpony, hashlib, time, requests_oauthlib, pickle, simplejson #do i still need hashlib?
 
 from requests_oauthlib import OAuth1Session
 
@@ -78,12 +78,19 @@ def user_auth():
     token = oauth_session.fetch_access_token(access_token_url)
     save_secrets('secret_token', token)
     save_secrets('secret_session', oauth_session)
-    #return oauth_session
 
 def user_tweet(oauth_session, new_string):
     status_url = 'https://api.twitter.com/1.1/statuses/update.json'
     new_status = {'status':  new_string}
     oauth_session.post(status_url, data=new_status)
+
+def user_timeline(oauth_session, user_name):
+    timeline_url = 'https://api.twitter.com/1.1/statuses/user_timeline.json'
+    timeline_url += '?screen_name='
+    timeline_url += user_name
+    timeline_url += '&count=10'
+    tweets = oauth_session.get(timeline_url)
+    return tweets #this is a list !
 
 @route('/')
 def serve_index():
@@ -105,16 +112,19 @@ def get_info():
 def serve_translation():
     new_string = new_translation()
     user_name = ''
+    json_tweets = None
     if os.path.isfile('./secret_session'):
         user_auth()
         oauth_session = access_secrets('secret_session')
-        #user_tweet(oauth_session, new_string)
+        user_tweet(oauth_session, new_string)
         user_dict = access_secrets('secret_token')
         user_name = user_dict['screen_name'] #need to figure out what to do here
+        tweets = user_timeline(oauth_session, user_name)
+        json_tweets = tweets.json()
     else:
-        #preteenify_tweet(new_string)
+        preteenify_tweet(new_string) #totally hates duplicate statuses
         user_name = 'PRETEENIFY' #okay so this widget is predefined
-    return template('translated', new_string=new_string, user_name=user_name)  
+    return template('translated', new_string=new_string, user_name=user_name, tweets=json_tweets)  
 
 def new_translation():
     word_string = request.forms.get('word_string')
@@ -146,6 +156,7 @@ def translate(word_string):
         'more' : 'moar',
         'though' : 'tho',
         'school' : 'skool',
+        's' : '$',
     } 
 
     for key in vocab_dict:
