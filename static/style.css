@@ -69,6 +69,13 @@ a:hover
     z-index: 1;
 }
 
+.img
+{
+    position: absolute;
+    right: 20px;
+    top: 1px;
+}
+
 .lindsay
 {
     position: absolute;
@@ -89,6 +96,7 @@ a:hover
     top: 110px;
     right: 50px;
     float: right;
+    z-index: 3;
 }
 
 .sad
@@ -122,6 +130,15 @@ a:hover
     right: 350px;
 }
 
+.tweet
+{
+    background-color: white;
+    background-color: rgba(255,255,255,0.5);
+    border-radius: 10px;
+    border: 2px solid #a1a1a1;
+    z-index: 5001;
+}
+
 .twitter-code
 {
     position: absolute;
@@ -138,6 +155,32 @@ a:hover
     right: 0px;
     width: 200px;
     height: 50px;
+}
+
+.user-header
+{
+    background-color: #d3d3d3;
+    border-radius: 10px 10px 0px 0px;
+    border: 2px solid #a1a1a1;
+    position: absolute;
+    top: 202px;
+    right: 313px;
+    width: 300px;
+    height: 51px;
+    z-index: 5001;
+}
+
+.user-timeline
+{
+    border-radius: 0px 0px 10px 10px;
+    border: 2px solid #a1a1a1;
+    position: absolute;
+    top: 257px;
+    right: 313px;
+    z-index: 5000;
+    width: 300px;
+    height: 400px;
+    overflow-y: scroll;
 }
 
 .words
