@@ -37,6 +37,24 @@ a:hover
 {
     color: #6BFFB7;
     height: 10px;
+    cursor:default;
+}
+
+.what
+{
+    position: absolute;
+    left: 300px;
+}
+
+.explain
+{
+    visibility: hidden;
+    position: absolute;
+    width: 209px;
+    border-radius: 0px 0px 10px 10px;
+    border: 2px solid #a1a1a1;
+    background-color: white;
+    z-index: 10000;
 }
 
 .pizza
