@@ -87,6 +87,14 @@ a:hover
     z-index: 1;
 }
 
+.follow-button
+{
+    position: absolute;
+    top: 45px;
+    left: 0px;
+    z-index: 5;
+}
+
 .img
 {
     position: absolute;
