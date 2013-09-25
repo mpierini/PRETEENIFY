@@ -9,6 +9,10 @@ body
     height: 10px;
 }
 
+.container {
+    width:970px;
+}
+
 h1
 {
     position: absolute;
@@ -62,6 +66,13 @@ a:hover
     position: absolute;
     left: 0px;
     bottom: 0px;
+}
+
+.again
+{
+    position: absolute;
+    right: 290px;
+    z-index: 2000;
 }
 
 .bieber
@@ -211,6 +222,7 @@ a:hover
 
 .words
 {
+    /* if you use all characters it kind of runs into the home link... */
     position: absolute;
     top: 45px;
     right: 200px;
