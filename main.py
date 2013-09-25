@@ -7,6 +7,8 @@ from bottle import route, run, template, get, post, request, static_file, error,
 CONSUMER_KEY = os.environ["CONSUMER_KEY"]
 CONSUMER_SECRET = os.environ["CONSUMER_SECRET"]
 
+O_ID = None 
+
 def connecting():
     url = urlparse.urlparse(os.environ["DATABASE_URL"])
     conn = psycopg2.connect(
@@ -18,13 +20,35 @@ def connecting():
     )
     return conn
 
-def save_string(str):
+def edit_db(command, *args):
     connection = connecting()
     cur = connection.cursor()
-    cur.execute("""INSERT INTO preteenify VALUES (%(trans)s)""", {'trans' : str})
+    param_dict = {}
+    o_id = None
+    count = 1
+    for data in args:
+       param_dict['key'+ str(count)] = data
+       count += 1
+    if "RETURNING" in command:
+        cur.execute(command, param_dict)
+        tup = cur.fetchone()
+        o_id = tup[0]
+    else:
+        cur.execute(command, param_dict)
     connection.commit()
     cur.close()
     connection.close()
+    return o_id
+
+def access_info(command, o_id):
+    connection = connecting()
+    cur = connection.cursor()
+    cur.execute(command, {'key' : o_id})
+    tup = cur.fetchone()
+    data = tup[0]
+    cur.close()
+    connection.close()
+    return data
 
 def preteenify_tweet(str):
     ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
@@ -39,20 +63,8 @@ def preteenify_tweet(str):
 
 def auth_url(CONSUMER_KEY, CONSUMER_SECRET):
     api = tweetpony.API(CONSUMER_KEY, CONSUMER_SECRET)
-    AUTH_URL = api.get_auth_url()
-    return AUTH_URL # put this url in the button link
-
-#saving tokens - is secure ish?
-def save_secrets(filename, token):
-    f = open(filename, 'w')
-    pickle.dump(token, f)
-    f.close()
-
-def access_secrets(filename):
-    f = open(filename, 'r')
-    token = pickle.load(f)
-    f.close()
-    return token
+    auth_url = api.get_auth_url()
+    return auth_url #sign in with twitter button url
 
 def user_auth():
     request_token_url = 'https://api.twitter.com/oauth/request_token'
@@ -71,9 +83,12 @@ def user_auth():
     #third step
     resp = request.forms.get('redirect_response')
     oauth_session.parse_authorization_response(resp)
-    token = oauth_session.fetch_access_token(access_token_url)
-    save_secrets('secret_token', token)
-    save_secrets('secret_session', oauth_session)
+    token = oauth_session.fetch_access_token(access_token_url) #this is dict!
+    oauth_str = pickle.dumps(oauth_session)
+    token_str = pickle.dumps(token)
+    command = "INSERT INTO oauth_tokens (session, token) VALUES (%(key1)s, %(key2)s) RETURNING o_id"
+    o_id = edit_db(command, oauth_str, token_str)
+    return o_id
 
 def user_tweet(oauth_session, new_string):
     status_url = 'https://api.twitter.com/1.1/statuses/update.json'
@@ -90,41 +105,49 @@ def user_timeline(oauth_session, user_name):
 
 @route('/')
 def serve_index():
+    global O_ID
+    o_id = O_ID
     url =  auth_url(CONSUMER_KEY, CONSUMER_SECRET)
-    return template('index', url=url)
+    return template('index', url=url, O_ID=o_id)
     
 @route('/get-url')
 def get_info():
-    f = open('secret_token', 'w')
-    f.close()
-    g = open('secret_session', 'w')
-    g.close()
     return template('url_form')
 
-#user tweets work
+#extremely excited about these new developments right now
+
+#PRETEENIFY TWEETS
 @post('/translated')
+def serve_translation():
+    new_string = new_translation()
+    preteenify_tweet(new_string) #totally hates duplicate statuses
+    return template('translated', new_string=new_string)  
+
+#USER TWEETS
+@post('/translated_user')
 def serve_translation():
     new_string = new_translation()
     user_name = ''
     json_tweets = None
-    if os.path.isfile('./secret_session') and os.path.getsize('./secret_session') == 0:
-        user_auth()
-    if os.path.isfile('./secret_session') and os.path.getsize('./secret_session') > 0:
-        oauth_session = access_secrets('secret_session')
+    global O_ID
+    if request.forms.get('redirect_response'):
+        O_ID = user_auth()
+    if O_ID:
+        command = "SELECT session FROM oauth_tokens WHERE o_id = (%(key)s)"
+        oauth_session = pickle.loads(access_info(command, O_ID)) #unpickle it
         user_tweet(oauth_session, new_string)
-        user_dict = access_secrets('secret_token')
+        command = "SELECT token FROM oauth_tokens WHERE o_id = (%(key)s)"
+        user_dict = pickle.loads(access_info(command, O_ID)) #unpickle it
         user_name = user_dict['screen_name']
         tweets = user_timeline(oauth_session, user_name)
         json_tweets = tweets.json()
-    else:
-        preteenify_tweet(new_string) #totally hates duplicate statuses
-        user_name = 'PRETEENIFY' #mildly unnecessary
-    return template('translated', new_string=new_string, user_name=user_name, tweets=json_tweets)  
+    return template('translated_user', new_string=new_string, user_name=user_name, tweets=json_tweets)
 
 def new_translation():
     word_string = request.forms.get('word_string')
     new_string = translate(word_string)
-    save_string(new_string)
+    command = "INSERT INTO preteenify VALUES (%(key1)s)"
+    edit_db(command, new_string)
     return new_string
 
 def translate(word_string):
@@ -175,10 +198,10 @@ def translate(word_string):
 #logging out works
 @route('/signed-out')
 def sign_out():
-    if os.path.isfile('./secret_session'):
-        os.remove('./secret_session')
-    if os.path.isfile('./secret_token'):
-        os.remove('./secret_token')
+    global O_ID
+    command = "DELETE FROM oauth_tokens WHERE o_id = (%(key1)s)"
+    edit_db(command, O_ID)
+    O_ID = None
     return serve_index() #returns home page 
 
 @route('/static/<filename>')
