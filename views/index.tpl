@@ -35,8 +35,8 @@
         <input type="submit" value="TRANSLATE"/>
       </form>
     </div>
-    %import os
-    %if not os.path.isfile('./secret_session'): 
+    <!-- hrm this control statement is not controlling with purpose -->
+    %if not O_ID: 
     <div class="twitter-login">
       <a href = {{url}}>
         <img src="static/sign-in-with-twitter-gray.png">
