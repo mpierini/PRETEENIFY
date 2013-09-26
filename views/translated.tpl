@@ -1,3 +1,9 @@
+    <div class="again">
+      <form method="POST" action="/translated" align="center">
+        <input name="word_string" type="text" maxlength="130"/>
+        <input type="submit" value="TRANSLATE"/>
+      </form>
+    </div>
     <div class="words">
       {{new_string}}
     </div>
