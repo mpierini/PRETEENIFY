@@ -150,32 +150,37 @@ def new_translation():
     edit_db(command, new_string)
     return new_string
 
-def translate(word_string):
-
+def load_dict():
     vocab_dict = {
         'to' : '2',
         'too' : '2',
         'for' : '4',
-	'ate' : '8',
-	'you' : 'u',
-	'thanks' : 'thx',
-	'please' : 'plz',
-	'love' : 'luv',
-	'haha' : 'lol',
-	'oh my god' : 'omg',
-	'ight' : 'ite',
-	'girl' : 'gurl',
-	'and' : '&',
-	'because' : 'cuz',
-	'forever' : '4ever',
-	'what' : 'wut',
+        'ate' : '8',
+        'you' : 'u',
+        'thanks' : 'thx',
+        'please' : 'plz',
+        'love' : 'luv',
+        'haha' : 'lol',
+        'oh my god' : 'omg',
+        'ight' : 'ite',
+        'girl' : 'gurl',
+        'boy' : 'boi',
+        'and' : '&',
+        'because' : 'cuz',
+        'forever' : '4ever',
+        'what' : 'wut',
         'house' : 'haus',
         'thing' : 'thang',
         'more' : 'moar',
         'though' : 'tho',
         'school' : 'skool',
         's' : '$',
-    } 
+    }
+    return vocab_dict
+
+def translate(word_string):
+
+    vocab_dict = load_dict() 
 
     for key in vocab_dict:
         if key in word_string:
@@ -190,6 +195,8 @@ def translate(word_string):
         for letter in each:
 	    count+=1
 	    if count % 2 == 0:
+                if letter == 'i':
+                    continue #the people have spoken & want better readability
 	        each = each.replace(letter, letter.upper())
         words[index] = each
 	index+=1
