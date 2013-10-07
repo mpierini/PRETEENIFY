@@ -188,17 +188,19 @@ def translate(word_string):
 	    word_string = word_string.replace(key, vocab_dict[key])
 
     words = word_string.split(" ")
-    count = 0
+    #count = 0
     index = 0
 
     for each in words:
+        length = len(each)
         each = each.lower()
-        for letter in each:
-	    count+=1
-	    if count % 2 == 0:
-                if letter == 'i':
-                    continue #the people have spoken & want better readability
-	        each = each.replace(letter, letter.upper())
+        for i in range(0, length):
+	    if i % 2 == 0:
+                if each[i] == 'i':
+                    if i != 0: #don't want negative indexing
+                        each = each.replace(each[i-1], each[i-1].upper())
+                        continue #the people have spoken & want better readability
+	        each = each.replace(each[i], each[i].upper())
         words[index] = each
 	index+=1
     return '((~* ' + ' '.join(words) + ' *~))'
