@@ -7,6 +7,11 @@
     <div class="words">
       {{new_string}}
     </div>
+    <div class="twitter-login">
+      <a href = {{url}}>
+        <img src="static/sign-in-with-twitter-gray.png">
+      </a>
+    </div>
     <div class="timeline" align="center">
       <a class="twitter-timeline" width="300" height="450" href="https://twitter.com/PRETEENIFY" data-widget-id="364628094939717632">Tweets by @PRETEENIFY
       </a>

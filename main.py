@@ -121,7 +121,8 @@ def get_info():
 def serve_translation():
     new_string = new_translation()
     preteenify_tweet(new_string) #totally hates duplicate statuses
-    return template('translated', new_string=new_string)  
+    url = auth_url(CONSUMER_KEY, CONSUMER_SECRET)
+    return template('translated', new_string=new_string, url=url)  
 
 #USER TWEETS
 @post('/translated_user')
