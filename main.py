@@ -7,7 +7,8 @@ from bottle import route, run, template, get, post, request, static_file, error,
 CONSUMER_KEY = os.environ["CONSUMER_KEY"]
 CONSUMER_SECRET = os.environ["CONSUMER_SECRET"]
 
-O_ID = None 
+O_ID = None
+RESPONSE = None
 
 def connecting():
     url = urlparse.urlparse(os.environ["DATABASE_URL"])
@@ -50,7 +51,7 @@ def access_info(command, o_id):
     connection.close()
     return data
 
-def preteenify_tweet(str):
+def preteenify_tweet(string):
     ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
     ACCESS_TOKEN_SECRET = os.environ["ACCESS_TOKEN_SECRET"]
     api = tweetpony.API(
@@ -59,7 +60,7 @@ def preteenify_tweet(str):
         access_token=ACCESS_TOKEN,
         access_token_secret=ACCESS_TOKEN_SECRET
     )
-    api.update_status(status = str)
+    api.update_status(status = string) #just now realized i was using a keyword...
 
 def auth_url(CONSUMER_KEY, CONSUMER_SECRET):
     api = tweetpony.API(CONSUMER_KEY, CONSUMER_SECRET)
@@ -81,8 +82,8 @@ def user_auth():
     #second step
     oauth_session.authorization_url(authentication_url)
     #third step
-    resp = request.forms.get('redirect_response')
-    oauth_session.parse_authorization_response(resp)
+    global RESPONSE
+    oauth_session.parse_authorization_response(RESPONSE)
     token = oauth_session.fetch_access_token(access_token_url) #this is dict!
     oauth_str = pickle.dumps(oauth_session)
     token_str = pickle.dumps(token)
@@ -110,11 +111,12 @@ def serve_index():
     url =  auth_url(CONSUMER_KEY, CONSUMER_SECRET)
     return template('index', url=url, O_ID=o_id)
     
+#HAI NO MORE COPY/PASTE URLS == USER SO HAPPY!
 @route('/get-url')
 def get_info():
+    global RESPONSE
+    RESPONSE = request.url #requesting current url!!
     return template('url_form')
-
-#extremely excited about these new developments right now
 
 #PRETEENIFY TWEETS
 @post('/translated')
@@ -131,7 +133,8 @@ def serve_translation():
     user_name = ''
     json_tweets = None
     global O_ID
-    if request.forms.get('redirect_response'):
+    global RESPONSE
+    if RESPONSE:
         O_ID = user_auth()
     if O_ID:
         command = "SELECT session FROM oauth_tokens WHERE o_id = (%(key)s)"
@@ -188,7 +191,6 @@ def translate(word_string):
 	    word_string = word_string.replace(key, vocab_dict[key])
 
     words = word_string.split(" ")
-    #count = 0
     index = 0
 
     for each in words:
@@ -255,7 +257,7 @@ def error500(error):
                 <div class="trans">
                   SOMETHING TERRIBLE HAPPENED:
                   <br>HERE\'S YOUR TRANSLATION 
-                  <p>''' + translate(word_string) + '''
+                  <p>''' + translate(word_string) + '''</p>
 		</div>
                 <div class="lindsay">
                   <img src="static/lindsay_palm.gif">
