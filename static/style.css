@@ -176,15 +176,6 @@ a:hover
     z-index: 5001;
 }
 
-.twitter-code
-{
-    position: absolute;
-    top: 10px;
-    right: 200px;
-    width: 430px;
-    height: 50px;
-}
-
 .twitter-login
 {
     position: absolute;
