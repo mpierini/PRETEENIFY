@@ -179,6 +179,7 @@ def load_dict():
         'though' : 'tho',
         'school' : 'skool',
         's' : '$',
+        'baby': 'bb',
     }
     return vocab_dict
 
